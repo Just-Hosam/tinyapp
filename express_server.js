@@ -4,7 +4,8 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 const urlDatabase = {
-
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com"
 };
 
 const generateRandomString = () => {
@@ -29,14 +30,24 @@ app.post('/urls', (req, res) => {
   const longUrl = req.body.longURL;
   const shortUrl = generateRandomString();
   urlDatabase[shortUrl] = longUrl;
-  res.redirect(`/urls/:${shortUrl}`);
+  res.redirect(`/urls/${shortUrl}`);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {};
-  templateVars.shortURL = req.params.shortURL.slice(1),
+  templateVars.shortURL = req.params.shortURL,
   templateVars.longURL = urlDatabase[templateVars.shortURL]
   res.render('urls_show', templateVars);
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
+  if (!urlDatabase[shortURL]) {
+    res.status(404).send('Not found');
+  } else {
+    const longURL = urlDatabase[shortURL];
+    res.redirect(longURL);
+  }
 });
 
 app.get("/", (req, res) => {
