@@ -26,8 +26,11 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  urlDatabase[generateRandomString()] = req.body.longURL;
-  res.send('ok');
+  const longUrl = req.body.longURL;
+  const shortUrl = generateRandomString();
+  urlDatabase[shortUrl] = longUrl;
+  const templateVars = { urls: urlDatabase };
+  res.render('urls_index', templateVars);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
