@@ -4,8 +4,12 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+
+};
+
+const generateRandomString = () => {
+  const randomStr = Math.random().toString(36);
+  return randomStr.slice(randomStr.length - 6);
 };
 
 app.use(bodyParser.urlencoded({extended: true}));
@@ -22,7 +26,7 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.post('/urls', (req, res) => {
-  console.log(req.body);
+  urlDatabase[generateRandomString()] = req.body.longURL;
   res.send('ok');
 });
 
@@ -49,8 +53,3 @@ app.get("/hello", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-const generateRandomString = () => {
-  const randomStr = Math.random().toString(36);
-  return randomStr.slice(randomStr.length - 6);
-};
