@@ -17,6 +17,12 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
+app.post('/urls/:shortURL/delete', (req, res) => {
+  const shorty = req.params.shortURL;
+  delete urlDatabase[shorty];
+  res.redirect('/urls');
+});
+
 app.get('/urls', (req, res) => {
   const templateVars = { urls: urlDatabase };
   res.render('urls_index', templateVars);
