@@ -17,6 +17,12 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
+app.post('/login', (req, res) => {
+  const newUsername = req.body.username;
+  res.cookie('username', newUsername);
+  res.redirect('/urls');
+});
+
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shorty = req.params.shortURL;
   delete urlDatabase[shorty];
@@ -41,7 +47,7 @@ app.get('/urls/new', (req, res) => {
 
 app.post('/urls', (req, res) => {
   const longUrl = req.body.longURL;
-  const shortUrl = generateRandomString();
+  let shortUrl = generateRandomString();
   while (urlDatabase[shortUrl]) {
     shortUrl = generateRandomString();
   }
