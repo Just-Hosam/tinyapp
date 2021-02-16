@@ -21,6 +21,11 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new');
 });
 
+app.post('/urls', (req, res) => {
+  console.log(req.body);
+  res.send('ok');
+});
+
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = { 
     shortURL: req.params.shortURL,
