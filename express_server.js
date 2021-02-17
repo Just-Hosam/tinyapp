@@ -40,6 +40,19 @@ app.get('/login', (req, res) => {
   res.render('urls_login', templateVars);
 });
 
+app.post('/login', (req, res) => {
+  for (const user in users) {
+    if (users[user].email === req.body.email) {
+      if (users[user].password === req.body.password) {
+        res.cookie('user_id', users[user].id);
+        res.redirect('/urls');
+        return;
+      }
+    }
+  }
+  res.status(403).redirect('/login');
+});
+
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id');
   res.redirect('/urls');
@@ -65,7 +78,6 @@ app.post('/register', (req, res) => {
     email: req.body.email, 
     password: req.body.password
   }
-  console.log(users);
 
   res.cookie('user_id', newID);
   res.redirect('/urls');
