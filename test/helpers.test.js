@@ -52,3 +52,22 @@ describe('Tests for urlsForUsers', () => {
     assert.deepEqual(specificURLs, {});
   });
 });
+
+describe('Tests for getUserByEmail', () => {
+  it('should the appropriate user based on the email', () => {
+    const user = getUserByEmail('hosam_firas@hotmail.com', users);
+    const expected = {
+      id: "g9vqph", 
+      email: "hosam_firas@hotmail.com", 
+      password: "goldenkamuy"
+    };
+
+    assert.deepEqual(user, expected);
+  });
+
+  it('should return undefined if the email doens\'t exist in the database', () => {
+    const user = getUserByEmail('test', users);
+
+    assert.strictEqual(user, undefined);
+  });
+});
