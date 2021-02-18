@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-var cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const PORT = 8080; // default port 8080
@@ -101,7 +101,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
     delete urlDatabase[shorty];
     res.redirect('/urls');
   } else {
-    res.status(404).send('Not happening');
+    res.status(403).send('Not happening');
   }
 });
 
@@ -111,7 +111,7 @@ app.post('/urls/:shortURL/update', (req, res) => {
     urlDatabase[shorty].fullURL = req.body.longURL;
     res.redirect('/urls');
   } else {
-    res.status(404).send('Not Editing');
+    res.status(403).send('Not Editing');
   }
 });
 
@@ -162,7 +162,7 @@ app.get('/urls/:shortURL', (req, res) => {
     templateVars.longURL = urlDatabase[templateVars.shortURL].fullURL;
     res.render('urls_show', templateVars);
   } else {
-    res.status(404).send('Not today');
+    res.status(403).send('Not today');
   }
 });
 
