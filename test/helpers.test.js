@@ -35,3 +35,20 @@ describe('Tests for generateRandomString', () => {
     assert.isFalse(firstStr === secondStr);
   });
 });
+
+describe('Tests for urlsForUsers', () => {
+  it('should return the urls associated with the specific user only', () => {
+    const specificURLs = urlsForUser('g9vqph', urlDatabase);
+    const expectedURLs = {
+      b2xVn2: { fullURL: 'http://www.lighthouselabs.ca', userID: 'g9vqph' },
+      '9sm5xK': { fullURL: 'http://www.google.com', userID: 'g9vqph' }
+    }
+    assert.deepEqual(specificURLs, expectedURLs);
+  });
+
+  it('should return an empty object if the user doesn\'t match any entry in our database', () => {
+    const specificURLs = urlsForUser('testing', urlDatabase);
+
+    assert.deepEqual(specificURLs, {});
+  });
+});
