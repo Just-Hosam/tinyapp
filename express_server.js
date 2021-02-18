@@ -45,6 +45,14 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
+app.get('/', (req, res) => {
+  if (users[req.cookies.user_id]) {
+    res.redirect('/urls');
+  } else {
+    res.redirect('/login');
+  }
+});
+
 app.get('/login', (req, res) => {
   const templateVars = {
     user: users[req.cookies.user_id]
