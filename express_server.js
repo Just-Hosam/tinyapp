@@ -84,13 +84,10 @@ app.post('/register', (req, res) => {
     res.status(400).send('Empty Fields!');
     return;
   }
-  do {
-    let newID = generateRandomString();
-  } while (users[newID])
-  // let newID = generateRandomString();
-  // while (users[newID]) {
-  //   newID = generateRandomString();
-  // }
+  let newID = generateRandomString();
+  while (users[newID]) {
+    newID = generateRandomString();
+  }
   for (const user in users) {
     if (users[user].email === req.body.email) {
       res.status(400).send('Email already present in our database.');
@@ -156,13 +153,10 @@ app.get('/register', (req, res) => {
 
 app.post('/urls', (req, res) => {
   const longUrl = req.body.longURL;
-  do {
-    let shortUrl = generateRandomString();
-  } while (urlDatabase[shortUrl])
-  // let shortUrl = generateRandomString();
-  // while (urlDatabase[shortUrl]) {
-  //   shortUrl = generateRandomString();
-  // }
+  let shortUrl = generateRandomString();
+  while (urlDatabase[shortUrl]) {
+    shortUrl = generateRandomString();
+  }
   urlDatabase[shortUrl] = { fullURL: longUrl , userID: req.cookies.user_id };
   res.redirect(`/urls/${shortUrl}`);
 });
