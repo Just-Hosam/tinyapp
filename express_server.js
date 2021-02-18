@@ -6,11 +6,13 @@ const app = express();
 const PORT = 8080; // default port 8080
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { fullURL: "http://www.lighthouselabs.ca", userID: 'g9vqph' },
+  "9sm5xK": { fullURL: "http://www.google.com", userID: 'g9vqph' },
+  "90dbtr": { fullURL: "https://www.apple.com/ca/", userID: 'vqobij' },
+  "cs95y6": { fullURL: "http://www.compass.com", userID: 'vqobij' }
 };
 
-const users = { 
+const users = {
   "g9vqph": {
     id: "g9vqph", 
     email: "hosam_firas@hotmail.com", 
@@ -26,6 +28,16 @@ const users = {
 const generateRandomString = () => {
   const randomStr = Math.random().toString(36);
   return randomStr.slice(randomStr.length - 6);
+};
+
+const urlsForUser = id => {
+  let specificURLs = {};
+  for (const url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      specificURLs[url] = urlDatabase[url];
+    }
+  }
+  return specificURLs;
 };
 
 app.use(cookieParser());
@@ -85,29 +97,42 @@ app.post('/register', (req, res) => {
 
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shorty = req.params.shortURL;
-  delete urlDatabase[shorty];
-  res.redirect('/urls');
+  if (urlDatabase[shorty].userID === req.cookies.user_id) {
+    delete urlDatabase[shorty];
+    res.redirect('/urls');
+  } else {
+    res.status(404).send('Not happening');
+  }
 });
 
 app.post('/urls/:shortURL/update', (req, res) => {
   const shorty = req.params.shortURL;
-  urlDatabase[shorty] = req.body.longURL;
-  res.redirect('/urls');
+  if (urlDatabase[shorty].userID === req.cookies.user_id) {
+    urlDatabase[shorty].fullURL = req.body.longURL;
+    res.redirect('/urls');
+  } else {
+    res.status(404).send('Not Editing');
+  }
 });
 
 app.get('/urls', (req, res) => {
+  const specificURLs = urlsForUser(req.cookies.user_id);
   const templateVars = {
-    urls: urlDatabase,
+    urls: specificURLs,
     user: users[req.cookies.user_id]
   };
   res.render('urls_index', templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
-  const templateVars = {
-    user: users[req.cookies.user_id]
-  };
-  res.render('urls_new', templateVars);
+  if (users[req.cookies.user_id]) {
+    const templateVars = {
+      user: users[req.cookies.user_id]
+    };
+    res.render('urls_new', templateVars);
+  } else {
+    res.redirect('/login');
+  }
 });
 
 app.get('/register', (req, res) => {
@@ -123,7 +148,7 @@ app.post('/urls', (req, res) => {
   while (urlDatabase[shortUrl]) {
     shortUrl = generateRandomString();
   }
-  urlDatabase[shortUrl] = longUrl;
+  urlDatabase[shortUrl] = { fullURL: longUrl , userID: req.cookies.user_id };
   res.redirect(`/urls/${shortUrl}`);
 });
 
@@ -131,9 +156,14 @@ app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
     user: users[req.cookies.user_id]
   };
-  templateVars.shortURL = req.params.shortURL;
-  templateVars.longURL = urlDatabase[templateVars.shortURL];
-  res.render('urls_show', templateVars);
+
+  if (req.cookies.user_id === urlDatabase[req.params.shortURL].userID) {
+    templateVars.shortURL = req.params.shortURL;
+    templateVars.longURL = urlDatabase[templateVars.shortURL].fullURL;
+    res.render('urls_show', templateVars);
+  } else {
+    res.status(404).send('Not today');
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -141,7 +171,7 @@ app.get("/u/:shortURL", (req, res) => {
   if (!urlDatabase[shortURL]) {
     res.status(404).send('Not found');
   } else {
-    const longURL = urlDatabase[shortURL];
+    const longURL = urlDatabase[shortURL].fullURL;
     res.redirect(longURL);
   }
 });
