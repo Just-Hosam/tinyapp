@@ -64,7 +64,6 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   for (const user in users) {
     if (users[user].email === req.body.email) {
-      // if (bcrypt.compareSync(req.body.password, users[user].password))
       if (bcrypt.compareSync(req.body.password, users[user].password)) {
         res.cookie('user_id', users[user].id);
         res.redirect('/urls');
@@ -85,10 +84,13 @@ app.post('/register', (req, res) => {
     res.status(400).send('Empty Fields!');
     return;
   }
-  let newID = generateRandomString();
-  while (users[newID]) {
-    newID = generateRandomString();
-  }
+  do {
+    let newID = generateRandomString();
+  } while (users[newID])
+  // let newID = generateRandomString();
+  // while (users[newID]) {
+  //   newID = generateRandomString();
+  // }
   for (const user in users) {
     if (users[user].email === req.body.email) {
       res.status(400).send('Email already present in our database.');
@@ -98,7 +100,7 @@ app.post('/register', (req, res) => {
   users[newID] = {
     id: newID,
     email: req.body.email, 
-    password: req.body.password
+    password: bcrypt.hashSync(req.body.password, 10)
   }
 
   res.cookie('user_id', newID);
@@ -154,10 +156,13 @@ app.get('/register', (req, res) => {
 
 app.post('/urls', (req, res) => {
   const longUrl = req.body.longURL;
-  let shortUrl = generateRandomString();
-  while (urlDatabase[shortUrl]) {
-    shortUrl = generateRandomString();
-  }
+  do {
+    let shortUrl = generateRandomString();
+  } while (urlDatabase[shortUrl])
+  // let shortUrl = generateRandomString();
+  // while (urlDatabase[shortUrl]) {
+  //   shortUrl = generateRandomString();
+  // }
   urlDatabase[shortUrl] = { fullURL: longUrl , userID: req.cookies.user_id };
   res.redirect(`/urls/${shortUrl}`);
 });
