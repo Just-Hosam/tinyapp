@@ -58,3 +58,6 @@ A `bcryptjs` package is installed and commented at the start of `express_server.
 - cookie-session
 - bcryptjs
 
+## Acknowledgments
+
+This project was worked on intandem with [Nolan Eckert](https://github.com/Nolan-E/tinyapp).
