@@ -172,6 +172,14 @@ app.get("/u/:shortURL", (req, res) => {
   res.status(404).send('Not found');
 });
 
+app.get('*', (req, res) => {
+  res.status(400).redirect('/login');
+});
+
+app.post('*', (req, res) => {
+  res.status(400).redirect('/login');
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
