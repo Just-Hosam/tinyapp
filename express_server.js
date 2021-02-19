@@ -55,7 +55,7 @@ app.post('/login', (req, res) => {
   const curEmail = req.body.email;
   const curPassword = req.body.password;
   const curUser = getUserByEmail(curEmail, users);
-  if (curUser){
+  if (curUser) {
     if (bcrypt.compareSync(curPassword, curUser.password)) {
       req.session.user_id = curUser.id;
       res.redirect('/urls');

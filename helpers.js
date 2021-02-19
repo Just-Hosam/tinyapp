@@ -1,6 +1,6 @@
 const generateRandomString = (database) => {
   const randomStr = Math.random().toString(36);
-  const newID = randomStr.slice(randomStr.length - 6);
+  let newID = randomStr.slice(randomStr.length - 6);
   while (database[newID]) {
     newID = generateRandomString();
   }
@@ -29,4 +29,4 @@ module.exports = {
   generateRandomString,
   urlsForUser,
   getUserByEmail
-}
+};

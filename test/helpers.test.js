@@ -10,13 +10,13 @@ const urlDatabase = {
 
 const users = {
   "g9vqph": {
-    id: "g9vqph", 
-    email: "hosam_firas@hotmail.com", 
+    id: "g9vqph",
+    email: "hosam_firas@hotmail.com",
     password: "goldenkamuy"
   },
- "vqobij": {
+  "vqobij": {
     id: "vqobij",
-    email: "firas_911@live.ca", 
+    email: "firas_911@live.ca",
     password: "temppass123"
   }
 };
@@ -26,7 +26,7 @@ describe('Tests for generateRandomString', () => {
     const newStr = generateRandomString(urlDatabase);
 
     assert.strictEqual(newStr.length, 6);
-  })
+  });
 
   it('should return 2 different strings when ran twice', () => {
     const firstStr = generateRandomString(urlDatabase);
@@ -42,7 +42,7 @@ describe('Tests for urlsForUsers', () => {
     const expectedURLs = {
       b2xVn2: { fullURL: 'http://www.lighthouselabs.ca', userID: 'g9vqph' },
       '9sm5xK': { fullURL: 'http://www.google.com', userID: 'g9vqph' }
-    }
+    };
     assert.deepEqual(specificURLs, expectedURLs);
   });
 
@@ -57,8 +57,8 @@ describe('Tests for getUserByEmail', () => {
   it('should the appropriate user based on the email', () => {
     const user = getUserByEmail('hosam_firas@hotmail.com', users);
     const expected = {
-      id: "g9vqph", 
-      email: "hosam_firas@hotmail.com", 
+      id: "g9vqph",
+      email: "hosam_firas@hotmail.com",
       password: "goldenkamuy"
     };
 
