@@ -18,23 +18,21 @@ const users = {
   "g9vqph": {
     id: "g9vqph",
     email: "hosam_firas@hotmail.com",
-    password: bcrypt.hashSync("goldenkamuy", 10)
+    password: bcrypt.hashSync("goldenkamuy", 10) // kept for testing
   },
   "vqobij": {
     id: "vqobij",
     email: "firas_911@live.ca",
-    password: bcrypt.hashSync("temppass123", 10)
+    password: bcrypt.hashSync("temppass123", 10) // kept for testing
   }
 };
 
-// app.use(cookieParser());
+app.set("view engine", "ejs");
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
   keys: ['mynameishosam']
 }));
-app.use(bodyParser.urlencoded({extended: true}));
-
-app.set("view engine", "ejs");
 
 app.get('/', (req, res) => {
   if (users[req.session.user_id]) {
@@ -77,18 +75,18 @@ app.post('/register', (req, res) => {
     res.status(400).send('Empty Fields!');
     return;
   }
-  const newID = generateRandomString(users);
   if (getUserByEmail(req.body.email, users)) {
     res.status(400).send('Email already present in our database.');
-  } else {
-    users[newID] = {
-      id: newID,
-      email: req.body.email,
-      password: bcrypt.hashSync(req.body.password, 10)
-    };
-    req.session.user_id = newID;
-    res.redirect('/urls');
+    return;
   }
+  const newID = generateRandomString(users);
+  users[newID] = {
+    id: newID,
+    email: req.body.email,
+    password: bcrypt.hashSync(req.body.password, 10)
+  };
+  req.session.user_id = newID;
+  res.redirect('/urls');
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
@@ -122,13 +120,11 @@ app.get('/urls', (req, res) => {
 
 app.get('/urls/new', (req, res) => {
   if (users[req.session.user_id]) {
-    const templateVars = {
-      user: users[req.session.user_id]
-    };
+    const templateVars = { user: users[req.session.user_id] };
     res.render('urls_new', templateVars);
-  } else {
-    res.redirect('/login');
+    return;
   }
+  res.redirect('/login');
 });
 
 app.get('/register', (req, res) => {
@@ -136,9 +132,7 @@ app.get('/register', (req, res) => {
     res.redirect('/urls');
     return;
   }
-  const templateVars = {
-    user: users[req.session.user_id]
-  };
+  const templateVars = { user: users[req.session.user_id] };
   res.render('urls_register', templateVars);
 });
 
@@ -156,9 +150,7 @@ app.post('/urls', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
-      const templateVars = {
-        user: users[req.session.user_id]
-      };
+      const templateVars = { user: users[req.session.user_id] };
       templateVars.shortURL = req.params.shortURL;
       templateVars.longURL = urlDatabase[templateVars.shortURL].fullURL;
       res.render('urls_show', templateVars);
