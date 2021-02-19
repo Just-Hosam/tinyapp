@@ -27,6 +27,7 @@ const users = {
   }
 };
 
+// middleware
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
@@ -34,6 +35,7 @@ app.use(cookieSession({
   keys: ['mynameishosam']
 }));
 
+// root route
 app.get('/', (req, res) => {
   if (users[req.session.user_id]) {
     res.redirect('/urls');
@@ -42,6 +44,7 @@ app.get('/', (req, res) => {
   res.redirect('/login');
 });
 
+// Login page GET
 app.get('/login', (req, res) => {
   if (users[req.session.user_id]) {
     res.redirect('/urls');
@@ -51,6 +54,7 @@ app.get('/login', (req, res) => {
   res.render('urls_login', templateVars);
 });
 
+// Login page POST
 app.post('/login', (req, res) => {
   const curEmail = req.body.email;
   const curPassword = req.body.password;
@@ -65,11 +69,23 @@ app.post('/login', (req, res) => {
   res.status(403).redirect('/login');
 });
 
+// Logout POST
 app.post('/logout', (req, res) => {
   req.session = null;
   res.redirect('/urls');
 });
 
+// Resgister page GET
+app.get('/register', (req, res) => {
+  if (users[req.session.user_id]) {
+    res.redirect('/urls');
+    return;
+  }
+  const templateVars = { user: users[req.session.user_id] };
+  res.render('urls_register', templateVars);
+});
+
+// Resgister page POST
 app.post('/register', (req, res) => {
   if (!req.body.email || !req.body.password) {
     res.status(400).send('Empty Fields!');
@@ -89,35 +105,7 @@ app.post('/register', (req, res) => {
   res.redirect('/urls');
 });
 
-app.post('/urls/:shortURL/delete', (req, res) => {
-  const shorty = req.params.shortURL;
-  if (urlDatabase[shorty].userID === req.session.user_id) {
-    delete urlDatabase[shorty];
-    res.redirect('/urls');
-    return;
-  }
-  res.status(403).send('Cannot delete another user\'s URL');
-});
-
-app.post('/urls/:shortURL/update', (req, res) => {
-  const shorty = req.params.shortURL;
-  if (urlDatabase[shorty].userID === req.session.user_id) {
-    urlDatabase[shorty].fullURL = req.body.longURL;
-    res.redirect('/urls');
-    return;
-  }
-  res.status(403).send('Cannot edit another user\'s URL');
-});
-
-app.get('/urls', (req, res) => {
-  const specificURLs = urlsForUser(req.session.user_id, urlDatabase);
-  const templateVars = {
-    urls: specificURLs,
-    user: users[req.session.user_id]
-  };
-  res.render('urls_index', templateVars);
-});
-
+// New longURL page GET
 app.get('/urls/new', (req, res) => {
   if (users[req.session.user_id]) {
     const templateVars = { user: users[req.session.user_id] };
@@ -127,15 +115,7 @@ app.get('/urls/new', (req, res) => {
   res.redirect('/login');
 });
 
-app.get('/register', (req, res) => {
-  if (users[req.session.user_id]) {
-    res.redirect('/urls');
-    return;
-  }
-  const templateVars = { user: users[req.session.user_id] };
-  res.render('urls_register', templateVars);
-});
-
+// New longURL page POST
 app.post('/urls', (req, res) => {
   if (users[req.session.user_id]) {
     const longUrl = req.body.longURL;
@@ -147,6 +127,28 @@ app.post('/urls', (req, res) => {
   res.status(403).send('You need to be logged in to access this');
 });
 
+// URLs table GET
+app.get('/urls', (req, res) => {
+  const specificURLs = urlsForUser(req.session.user_id, urlDatabase);
+  const templateVars = {
+    urls: specificURLs,
+    user: users[req.session.user_id]
+  };
+  res.render('urls_index', templateVars);
+});
+
+// URLs table POST
+app.post('/urls/:shortURL/delete', (req, res) => {
+  const shorty = req.params.shortURL;
+  if (urlDatabase[shorty].userID === req.session.user_id) {
+    delete urlDatabase[shorty];
+    res.redirect('/urls');
+    return;
+  }
+  res.status(403).send('Cannot delete another user\'s URL');
+});
+
+// Short URL edit page GET
 app.get('/urls/:shortURL', (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
@@ -162,6 +164,18 @@ app.get('/urls/:shortURL', (req, res) => {
   res.status(404).send('Not found');
 });
 
+// Short URL edit page POST
+app.post('/urls/:shortURL/update', (req, res) => {
+  const shorty = req.params.shortURL;
+  if (urlDatabase[shorty].userID === req.session.user_id) {
+    urlDatabase[shorty].fullURL = req.body.longURL;
+    res.redirect('/urls');
+    return;
+  }
+  res.status(403).send('Cannot edit another user\'s URL');
+});
+
+// Redirecting route for end user GET
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   if (urlDatabase[shortURL]) {
@@ -172,14 +186,17 @@ app.get("/u/:shortURL", (req, res) => {
   res.status(404).send('Not found');
 });
 
+// Catch all route GET
 app.get('*', (req, res) => {
   res.status(400).redirect('/login');
 });
 
+// Catch all route POST
 app.post('*', (req, res) => {
   res.status(400).redirect('/login');
 });
 
+// Server port
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
