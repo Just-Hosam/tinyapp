@@ -60,4 +60,4 @@ A `bcryptjs` package is installed and commented at the start of `express_server.
 
 ## Acknowledgments
 
-This project was worked on intandem with [Nolan Eckert](https://github.com/Nolan-E).
+This project was worked on in tandem with [Nolan Eckert](https://github.com/Nolan-E).

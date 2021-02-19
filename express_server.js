@@ -38,7 +38,7 @@ app.use(cookieSession({
   keys: ['mynameishosam']
 }));
 
-// root route
+// Root route GET
 app.get('/', (req, res) => {
   if (users[req.session.user_id]) {
     res.redirect('/urls');
