@@ -39,9 +39,9 @@ app.set("view engine", "ejs");
 app.get('/', (req, res) => {
   if (users[req.session.user_id]) {
     res.redirect('/urls');
-  } else {
-    res.redirect('/login');
+    return;
   }
+  res.redirect('/login');
 });
 
 app.get('/login', (req, res) => {
@@ -49,9 +49,7 @@ app.get('/login', (req, res) => {
     res.redirect('/urls');
     return;
   }
-  const templateVars = {
-    user: users[req.session.user_id]
-  };
+  const templateVars = { user: users[req.session.user_id] };
   res.render('urls_login', templateVars);
 });
 
@@ -59,7 +57,7 @@ app.post('/login', (req, res) => {
   const curEmail = req.body.email;
   const curPassword = req.body.password;
   const curUser = getUserByEmail(curEmail, users);
-  if (!curUser){
+  if (curUser){
     if (bcrypt.compareSync(curPassword, curUser.password)) {
       req.session.user_id = curUser.id;
       res.redirect('/urls');
@@ -114,10 +112,6 @@ app.post('/urls/:shortURL/update', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  if (!req.session.user_id) {
-    res.status(403).send('Cannot access URLs if you\'re not logged in');
-    return;
-  }
   const specificURLs = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = {
     urls: specificURLs,
