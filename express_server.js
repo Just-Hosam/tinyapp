@@ -1,8 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
-const bcrypt = require('bcrypt');
 const { generateRandomString, urlsForUser, getUserByEmail } = require('./helpers');
+
+// bcrypt issue solution, please have ONE active at a time.
+const bcrypt = require('bcrypt');
+// const bcrypt = require('bcryptjs');
 
 const app = express();
 const PORT = 8080; // default port 8080
