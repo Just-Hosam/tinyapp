@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
-const { generateRandomString, urlsForUser, getUserByEmail } = require('./helpers');
+const { isNotLoggedIn, generateRandomString, urlsForUser, getUserByEmail } = require('./helpers');
 
 // bcrypt issue solution, please have ONE active at a time.
 const bcrypt = require('bcrypt');
@@ -10,25 +10,8 @@ const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080; // default port 8080
 
-const urlDatabase = {
-  "b2xVn2": { fullURL: "http://www.lighthouselabs.ca", userID: 'g9vqph' },
-  "9sm5xK": { fullURL: "http://www.google.com", userID: 'g9vqph' },
-  "90dbtr": { fullURL: "https://www.apple.com/ca/", userID: 'vqobij' },
-  "cs95y6": { fullURL: "http://www.compass.com", userID: 'vqobij' }
-};
-
-const users = {
-  "g9vqph": {
-    id: "g9vqph",
-    email: "hosam_firas@hotmail.com",
-    password: bcrypt.hashSync("goldenkamuy", 10) // kept for testing
-  },
-  "vqobij": {
-    id: "vqobij",
-    email: "firas_911@live.ca",
-    password: bcrypt.hashSync("temppass123", 10) // kept for testing
-  }
-};
+const urlDatabase = {};
+const users = {};
 
 // middleware
 app.set("view engine", "ejs");
@@ -40,21 +23,21 @@ app.use(cookieSession({
 
 // Root route GET
 app.get('/', (req, res) => {
-  if (users[req.session.user_id]) {
-    res.redirect('/urls');
+  isNotLoggedIn(req, users,  () => {
+    res.redirect('/login');
     return;
-  }
-  res.redirect('/login');
+  });
+  res.redirect('/urls');
 });
 
 // Login page GET
 app.get('/login', (req, res) => {
-  if (users[req.session.user_id]) {
-    res.redirect('/urls');
+  isNotLoggedIn(req, users,  () => {
+    const templateVars = { user: users[req.session.user_id] };
+    res.render('urls_login', templateVars);
     return;
-  }
-  const templateVars = { user: users[req.session.user_id] };
-  res.render('urls_login', templateVars);
+  });
+  res.redirect('/urls');
 });
 
 // Login page POST
@@ -69,7 +52,7 @@ app.post('/login', (req, res) => {
       return;
     }
   }
-  res.status(403).redirect('/login');
+  res.status(403).send('Incorrect email/password');
 });
 
 // Logout POST
@@ -80,12 +63,12 @@ app.post('/logout', (req, res) => {
 
 // Resgister page GET
 app.get('/register', (req, res) => {
-  if (users[req.session.user_id]) {
-    res.redirect('/urls');
+  isNotLoggedIn(req, users,  () => {
+    const templateVars = { user: users[req.session.user_id] };
+    res.render('urls_register', templateVars);
     return;
-  }
-  const templateVars = { user: users[req.session.user_id] };
-  res.render('urls_register', templateVars);
+  });
+  res.redirect('/urls');
 });
 
 // Resgister page POST
@@ -110,28 +93,32 @@ app.post('/register', (req, res) => {
 
 // New longURL page GET
 app.get('/urls/new', (req, res) => {
-  if (users[req.session.user_id]) {
-    const templateVars = { user: users[req.session.user_id] };
-    res.render('urls_new', templateVars);
+  isNotLoggedIn(req, users,  () => {
+    res.redirect('/login');
     return;
-  }
-  res.redirect('/login');
+  });
+  const templateVars = { user: users[req.session.user_id] };
+  res.render('urls_new', templateVars);
 });
 
 // New longURL page POST
 app.post('/urls', (req, res) => {
-  if (users[req.session.user_id]) {
-    const longUrl = req.body.longURL;
-    const shortUrl = generateRandomString(urlDatabase);
-    urlDatabase[shortUrl] = { fullURL: longUrl , userID: req.session.user_id };
-    res.redirect(`/urls/${shortUrl}`);
+  isNotLoggedIn(req, users,  () => {
+    res.status(403).send('You need to be logged in to access this');
     return;
-  }
-  res.status(403).send('You need to be logged in to access this');
+  });
+  const longUrl = req.body.longURL;
+  const shortUrl = generateRandomString(urlDatabase);
+  urlDatabase[shortUrl] = { fullURL: longUrl , userID: req.session.user_id };
+  res.redirect(`/urls/${shortUrl}`);
 });
 
 // URLs table GET
 app.get('/urls', (req, res) => {
+  isNotLoggedIn(req, users,  () => {
+    res.status(403).send('Not logged in.');
+    return;
+  });
   const specificURLs = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = {
     urls: specificURLs,
