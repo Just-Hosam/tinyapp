@@ -23,20 +23,20 @@ app.use(cookieSession({
 
 // Root route GET
 app.get('/', (req, res) => {
-  isNotLoggedIn(req, users,  () => {
+  if (!users[req.session.user_id]) {
     res.redirect('/login');
     return;
-  });
+  }
   res.redirect('/urls');
 });
 
 // Login page GET
 app.get('/login', (req, res) => {
-  isNotLoggedIn(req, users,  () => {
+  if (!users[req.session.user_id]) {
     const templateVars = { user: users[req.session.user_id] };
     res.render('urls_login', templateVars);
     return;
-  });
+  }
   res.redirect('/urls');
 });
 
@@ -58,16 +58,16 @@ app.post('/login', (req, res) => {
 // Logout POST
 app.post('/logout', (req, res) => {
   req.session = null;
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 // Resgister page GET
 app.get('/register', (req, res) => {
-  isNotLoggedIn(req, users,  () => {
+  if (!users[req.session.user_id]) {
     const templateVars = { user: users[req.session.user_id] };
     res.render('urls_register', templateVars);
     return;
-  });
+  }
   res.redirect('/urls');
 });
 
@@ -93,20 +93,20 @@ app.post('/register', (req, res) => {
 
 // New longURL page GET
 app.get('/urls/new', (req, res) => {
-  isNotLoggedIn(req, users,  () => {
+  if (!users[req.session.user_id]) {
     res.redirect('/login');
     return;
-  });
+  }
   const templateVars = { user: users[req.session.user_id] };
   res.render('urls_new', templateVars);
 });
 
 // New longURL page POST
 app.post('/urls', (req, res) => {
-  isNotLoggedIn(req, users,  () => {
+  if (!users[req.session.user_id]) {
     res.status(403).send('You need to be logged in to access this');
     return;
-  });
+  }
   const longUrl = req.body.longURL;
   const shortUrl = generateRandomString(urlDatabase);
   urlDatabase[shortUrl] = { fullURL: longUrl , userID: req.session.user_id };
@@ -115,10 +115,10 @@ app.post('/urls', (req, res) => {
 
 // URLs table GET
 app.get('/urls', (req, res) => {
-  isNotLoggedIn(req, users,  () => {
-    res.status(403).send('Not logged in.');
+  if (!users[req.session.user_id]) {
+    res.status(403).send('Cannot access URLs table. Please login to continue.');
     return;
-  });
+  }
   const specificURLs = urlsForUser(req.session.user_id, urlDatabase);
   const templateVars = {
     urls: specificURLs,
@@ -147,7 +147,7 @@ app.get('/urls/:shortURL', (req, res) => {
       templateVars.longURL = urlDatabase[templateVars.shortURL].fullURL;
       res.render('urls_show', templateVars);
     } else {
-      res.status(403).send('Not today');
+      res.status(401).send('This URL is owned by a different account');
     }
     return;
   }
