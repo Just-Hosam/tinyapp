@@ -25,16 +25,8 @@ const getUserByEmail = (email, database) => {
   }
 };
 
-const isNotLoggedIn = (req, database, callback) => {
-  if (!database[req.session.user_id]) {
-    callback();
-    return;
-  }
-}
-
 module.exports = {
   generateRandomString,
   urlsForUser,
-  getUserByEmail,
-  isNotLoggedIn
+  getUserByEmail
 };
