@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 // const bcrypt = require('bcryptjs');
 
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 
 const urlDatabase = {};
 const users = {};
@@ -52,7 +52,7 @@ app.post('/login', (req, res) => {
       return;
     }
   }
-  res.status(403).send('Incorrect email/password');
+  res.status(401).send('Incorrect email/password');
 });
 
 // Logout POST
@@ -104,7 +104,7 @@ app.get('/urls/new', (req, res) => {
 // New longURL page POST
 app.post('/urls', (req, res) => {
   if (!users[req.session.user_id]) {
-    res.status(403).send('You need to be logged in to access this');
+    res.status(401).send('You need to be logged in to access this');
     return;
   }
   const longUrl = req.body.longURL;
@@ -116,7 +116,7 @@ app.post('/urls', (req, res) => {
 // URLs table GET
 app.get('/urls', (req, res) => {
   if (!users[req.session.user_id]) {
-    res.status(403).send('Cannot access URLs table. Please login to continue.');
+    res.status(401).send('Cannot access URLs table. Please login to continue.');
     return;
   }
   const specificURLs = urlsForUser(req.session.user_id, urlDatabase);
