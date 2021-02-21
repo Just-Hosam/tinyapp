@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
-const { isNotLoggedIn, generateRandomString, urlsForUser, getUserByEmail } = require('./helpers');
+const { generateRandomString, urlsForUser, getUserByEmail } = require('./helpers');
 
 // bcrypt issue solution, please have ONE active at a time.
 const bcrypt = require('bcrypt');
@@ -151,7 +151,7 @@ app.get('/urls/:shortURL', (req, res) => {
     }
     return;
   }
-  res.status(404).send('Not found');
+  res.status(404).send('This URL does not exist in our database.');
 });
 
 // Short URL edit page POST
@@ -173,7 +173,7 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(longURL);
     return;
   }
-  res.status(404).send('Not found');
+  res.status(404).send('This URL does not exist in our database.');
 });
 
 // Catch all route GET
