@@ -11,7 +11,10 @@
 <body>
   <%- include('partials/_header') %>
   <main style="margin: 1em;">
-    <h3>My URLs</h3>
+    <div style="display: flex;">
+      <h3>My URLs</h3>
+      <a href='/urls/new' style="position: absolute; right: 15px;"><button href='/urls/login' class="btn btn-primary" >Create new URL</button></a>
+    </div>
     <table class="table">
       <thead>
         <tr>
