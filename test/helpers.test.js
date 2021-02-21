@@ -1,5 +1,5 @@
 const assert = require('chai').assert;
-const { generateRandomString, urlsForUser, getUserByEmail } = require('../helpers.js');
+const { isNotLoggedIn, generateRandomString, urlsForUser, getUserByEmail } = require('../helpers.js');
 
 const urlDatabase = {
   "b2xVn2": { fullURL: "http://www.lighthouselabs.ca", userID: 'g9vqph' },
@@ -69,5 +69,29 @@ describe('Tests for getUserByEmail', () => {
     const user = getUserByEmail('test', users);
 
     assert.strictEqual(user, undefined);
+  });
+});
+
+describe('Tests for isNotLoggedIn', () => {
+  it('should alter the given variable if user is not logged in', () => {
+    const req = {};
+    req.session = {};
+    req.session.user_id = null;
+    let testVar = 'Hosam';
+    isNotLoggedIn(req, users, () => {
+      testVar += 'Dahrooge';
+    });
+    assert.strictEqual(testVar, 'HosamDahrooge');
+  });
+
+  it('should alter not the given variable if user is logged in', () => {
+    const req = {};
+    req.session = {};
+    req.session.user_id = 'g9vqph';
+    let testVar = 'Hosam';
+    isNotLoggedIn(req, users, () => {
+      testVar += 'Dahrooge';
+    });
+    assert.strictEqual(testVar, 'Hosam');
   });
 });
